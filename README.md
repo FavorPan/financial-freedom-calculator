@@ -24,7 +24,7 @@ W = 480X + K×N + M + H
 零依赖、零构建：克隆后**双击 `index.html`** 即可离线使用。
 
 ```bash
-git clone https://github.com/FavorPan/wealth-freedom-calculator.git
+git clone https://github.com/FavorPan/financial-freedom-calculator.git
 open wealth-freedom-calculator/index.html
 ```
 
