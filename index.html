@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light" />
+<title>财富自由计算器 · 480 倍公式</title>
+<style>
+  :root{
+    --paper:#f6f1e7;
+    --card:#fffdf7;
+    --ink:#27211a;
+    --muted:#6f6455;
+    --line:#e4dac7;
+    --accent:#b93c2b;
+    --accent-deep:#8f2c1e;
+    --serif:"Songti SC","STSong","Noto Serif CJK SC",Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1100px 480px at 88% -12%, #fdfaf1 0%, transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font:16px/1.75 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  }
+  .wrap{max-width:1020px;margin:0 auto;padding:56px 24px 72px}
+
+  /* ── 页眉 ─────────────────────────── */
+  header{margin-bottom:44px;position:relative}
+  .kicker{font-size:13px;letter-spacing:.4em;color:var(--accent);font-weight:600;margin-bottom:12px}
+  h1{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.5vw,44px);letter-spacing:.03em;line-height:1.25}
+  .sub{color:var(--muted);margin-top:12px;max-width:620px;font-size:15px}
+  .sub b{color:var(--ink)}
+  .stamp{
+    position:absolute;right:2px;top:10px;width:54px;height:54px;border-radius:9px;
+    background:var(--accent);color:#fdf6ec;display:grid;place-items:center;
+    font-family:var(--serif);font-weight:900;font-size:17px;
+    writing-mode:vertical-rl;letter-spacing:.14em;
+    transform:rotate(6deg);
+    box-shadow:0 3px 0 rgba(60,20,10,.14);
+    user-select:none;
+  }
+
+  /* ── 布局 ─────────────────────────── */
+  .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:start}
+  @media(max-width:900px){
+    .grid{grid-template-columns:1fr;gap:28px}
+    .result{position:static !important;order:-1}
+  }
+
+  /* ── 输入区 ───────────────────────── */
+  .field{margin-bottom:30px}
+  .field>label{display:block;font-weight:600;font-size:15px;margin-bottom:9px}
+  .field>label small{color:var(--muted);font-weight:400;font-size:12.5px;margin-left:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .chips button{
+    font:inherit;font-size:13px;padding:4px 13px;border-radius:999px;cursor:pointer;
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    transition:color .15s,border-color .15s,background .15s;
+  }
+  .chips button:hover{border-color:var(--accent);color:var(--accent)}
+  .chips button.on{background:var(--ink);border-color:var(--ink);color:#f8f3e9}
+
+  input[type=number]{
+    width:100%;font:inherit;font-size:20px;font-weight:600;padding:10px 14px;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  input[type=number]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(185,60,43,.13)}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield;appearance:textfield}
+
+  .stepper{display:flex;gap:10px;align-items:stretch}
+  .stepper button{
+    width:48px;font-size:22px;line-height:1;border:1px solid var(--line);background:var(--card);
+    border-radius:10px;cursor:pointer;color:var(--ink);transition:color .15s,border-color .15s;
+  }
+  .stepper button:hover{border-color:var(--accent);color:var(--accent)}
+  .stepper input{text-align:center}
+
+  input[type=range]{width:100%;accent-color:var(--accent);margin:8px 0 6px}
+  .rline{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--muted)}
+  #r-val{font-weight:700;color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums}
+  .rline .mult b{color:var(--accent);font-size:16px}
+
+  /* ── 结果区 ───────────────────────── */
+  .result{
+    background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:32px 30px 26px;position:sticky;top:28px;
+    box-shadow:0 14px 34px -22px rgba(60,40,20,.3);
+    animation:rise .5s ease-out both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .r-kicker{font-size:12.5px;letter-spacing:.32em;color:var(--muted);font-weight:600}
+  .big{
+    font-family:var(--serif);color:var(--accent);font-weight:900;
+    font-size:clamp(56px,7vw,78px);line-height:1.15;margin:4px 0 2px;
+    font-variant-numeric:tabular-nums;
+  }
+  .big .unit{font-size:.4em;margin-left:8px;color:var(--accent-deep)}
+  .formula{
+    color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;
+    margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--line);
+  }
+  .rows{list-style:none}
+  .rows li{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+  .rows li span{flex:1}
+  .rows li b{font-variant-numeric:tabular-nums;font-weight:700}
+  .rows li i{font-style:normal;color:var(--muted);font-size:12.5px;min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+  .buffers{display:flex;gap:24px;margin-top:16px;font-size:13.5px;color:var(--muted);flex-wrap:wrap}
+  .buffers b{color:var(--ink);font-variant-numeric:tabular-nums;font-size:15.5px;margin-left:6px}
+  .insight{
+    margin-top:20px;padding:12px 14px;font-size:14px;color:var(--accent-deep);
+    background:rgba(185,60,43,.07);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+  }
+  .insight b{font-variant-numeric:tabular-nums}
+
+  footer{
+    margin-top:48px;color:var(--muted);font-size:12.5px;line-height:1.9;
+    max-width:760px;border-top:1px solid var(--line);padding-top:18px;
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <p class="kicker">严格财富自由 · 永续购买力</p>
+    <h1>财富自由计算器</h1>
+    <p class="sub">本金扣除通胀后的实际收益，永久覆盖生活开销，并预留育儿、医疗、购房三类大额支出。公式：<b>W = 乘数·X + K×N + M + H</b>（默认 2.5% 实际收益率 → ×480）</p>
+    <div class="stamp" aria-hidden="true">自由</div>
+  </header>
+
+  <div class="grid">
+    <section aria-label="参数输入">
+      <div class="field">
+        <label for="x">X · 家庭每月日常开销 <small>夫妻二人吃穿娱乐旅行，不含育儿与房贷房租</small></label>
+        <div class="chips" id="x-chips">
+          <button type="button" data-v="5000">5 千</button><button type="button" data-v="8000" class="on">8 千</button><button type="button" data-v="12000">1.2 万</button><button type="button" data-v="18000">1.8 万</button><button type="button" data-v="25000">2.5 万</button>
+        </div>
+        <input id="x" type="number" min="0" step="500" value="8000" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label for="n">N · 孩子数量 <small>养育费单独按 K 计，不占 X</small></label>
+        <div class="stepper">
+          <button type="button" id="n-minus" aria-label="减少一个孩子">−</button>
+          <input id="n" type="number" min="0" max="9" step="1" value="1" inputmode="numeric">
+          <button type="button" id="n-plus" aria-label="增加一个孩子">＋</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="k">K · 单娃养育总预算 <small>0–18 岁，按城市水平估</small></label>
+        <div class="chips" id="k-chips">
+          <button type="button" data-v="45">县城 45 万</button><button type="button" data-v="58">全国均值 58 万</button><button type="button" data-v="70" class="on">新一线 70 万</button><button type="button" data-v="90">一线 90 万</button>
+        </div>
+        <input id="k" type="number" min="0" step="1" value="70" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label for="m">M · 大病医疗储备（万） <small>自费药、靶向药、长期护理的专项预留</small></label>
+        <input id="m" type="number" min="0" step="5" value="50" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label for="h">H · 购房支出（万） <small>剩余房贷本金，或置换/二套预算；0 = 无此项</small></label>
+        <input id="h" type="number" min="0" step="5" value="50" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label for="r">实际投资收益率 <small>名义 4–4.5% 减通胀 2%；收益率越低，所需本金越多</small></label>
+        <input id="r" type="range" min="1.5" max="3.5" step="0.1" value="2.5">
+        <div class="rline"><span id="r-val">2.5%</span><span class="mult">对应乘数 <b id="mult">×480</b></span></div>
+      </div>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <p class="r-kicker">你的财富自由门槛</p>
+      <p class="big"><span id="w">554</span><span class="unit">万</span></p>
+      <p class="formula" id="formula"></p>
+      <ul class="rows">
+        <li><span>日常开销本金（乘数·X）</span><b id="row-core"></b><i id="pct-core"></i></li>
+        <li><span>育儿 K×N</span><b id="row-kn"></b><i id="pct-kn"></i></li>
+        <li><span>大病医疗 M</span><b id="row-m"></b><i id="pct-m"></i></li>
+        <li><span>购房 H</span><b id="row-h"></b><i id="pct-h"></i></li>
+      </ul>
+      <div class="buffers">
+        <p>留 20% 缓冲<b id="b12"></b></p>
+        <p>留 30% 缓冲<b id="b13"></b></p>
+      </div>
+      <p class="insight" id="insight"></p>
+    </section>
+  </div>
+
+  <footer>
+    前提：资金须做股债等资产配置，全存定存则公式不成立。默认假设名义收益 4–4.5%、长期通胀 2%；专业机构长期年化参考社保基金 7.39%（2000–2024）、企业年金 6.17%（2007–2024），散户到手需扣 2–3 个百分点费用。城市养育预算为按人均 GDP 对全国均值（约 58 万）的估算值，非报告原值。结果建议留 20–30% 缓冲。
+  </footer>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var $ = function(id){ return document.getElementById(id); };
+  var fmt = function(v, d){
+    return v.toLocaleString('zh-CN', { maximumFractionDigits: d || 0 });
+  };
+  // 万位数展示：≥100 取整，<100 保留 1 位
+  var fmtW = function(v){
+    return v >= 100 ? fmt(Math.round(v)) : fmt(Math.round(v * 10) / 10, 1);
+  };
+
+  function compute(){
+    var X = Math.max(0, +$('x').value || 0);
+    var N = Math.max(0, Math.round(+$('n').value || 0));
+    var K = Math.max(0, +$('k').value || 0);
+    var M = Math.max(0, +$('m').value || 0);
+    var H = Math.max(0, +$('h').value || 0);
+    var r = Math.min(3.5, Math.max(1.5, +$('r').value || 2.5));
+
+    var mult = 1200 / r;            // 实际收益率(%) → 乘数（2.5% → 1200/2.5 = 480）
+    var coreW = X * mult / 1e4;     // 日常开销本金（万）
+    var knW = K * N;                // 育儿（万）
+    var W = coreW + knW + M + H;    // 总门槛（万）
+
+    $('r-val').textContent = r.toFixed(1) + '%';
+    $('mult').textContent = '×' + Math.round(mult);
+    $('w').textContent = fmt(Math.round(W));
+    $('formula').textContent =
+      fmtW(coreW) + '万 + ' + fmtW(knW) + '万×' + N + ' + ' + fmtW(M) + '万 + ' + fmtW(H) + '万 = ' + fmt(Math.round(W)) + '万';
+
+    $('row-core').textContent = fmtW(coreW) + ' 万';
+    $('row-kn').textContent = fmtW(knW) + ' 万';
+    $('row-m').textContent = fmtW(M) + ' 万';
+    $('row-h').textContent = fmtW(H) + ' 万';
+
+    var pct = function(v){ return W > 0 ? Math.round(v / W * 100) + '%' : '—'; };
+    $('pct-core').textContent = pct(coreW);
+    $('pct-kn').textContent = pct(knW);
+    $('pct-m').textContent = pct(M);
+    $('pct-h').textContent = pct(H);
+
+    $('b12').textContent = fmt(Math.round(W * 1.2)) + ' 万';
+    $('b13').textContent = fmt(Math.round(W * 1.3)) + ' 万';
+
+    $('insight').innerHTML =
+      '每攒 <b>' + Math.round(mult) + '</b> 元本金 ≈ 自由后每月多 1 元可持续开销；' +
+      '月花 ' + fmt(X) + ' 元 → 日常本金 ' + fmtW(coreW) + ' 万';
+  }
+
+  // 常规输入实时计算
+  ['x','n','k','m','h','r'].forEach(function(id){
+    $(id).addEventListener('input', compute);
+  });
+
+  // 快捷档位（X 与 K）：点击填值并高亮；手动改输入则取消高亮
+  document.querySelectorAll('.chips').forEach(function(g){
+    g.addEventListener('click', function(e){
+      var b = e.target.closest('button');
+      if (!b) return;
+      g.parentElement.querySelector('input').value = b.dataset.v;
+      g.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      compute();
+    });
+  });
+  ['x','k'].forEach(function(id){
+    $(id).addEventListener('input', function(){
+      $(id + '-chips').querySelectorAll('button').forEach(function(b){ b.classList.remove('on'); });
+    });
+  });
+
+  // 孩子数量步进
+  $('n-minus').addEventListener('click', function(){ $('n').value = Math.max(0, (Math.round(+$('n').value || 0)) - 1); compute(); });
+  $('n-plus').addEventListener('click', function(){ $('n').value = Math.min(9, (Math.round(+$('n').value || 0)) + 1); compute(); });
+
+  compute();
+})();
+</script>
+</body>
+</html>
