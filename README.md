@@ -2,6 +2,8 @@
 
 单文件网页计算器：估算「严格财富自由」所需的本金门槛——资产扣除通胀后的实际收益，永久覆盖生活开销，并预留育儿、医疗、购房三类大额刚性支出。
 
+**在线使用：[fire.favorhub.top](https://fire.favorhub.top)**
+
 ![截图](docs/screenshot.jpg)
 
 ## 公式
